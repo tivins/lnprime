@@ -596,68 +596,68 @@ void ln_sqrt(ln_t * _out, ln_t * _n) {
 
     ln_append(&part_of_root, 0);
 
-
     /* on doit obtenir les 2 chiffres les plus grands du nombre, mais de
         manière pair : ex: 123 => "01","23". */
-
-    //ln_show(_n, " (number to square)\n");
-    // printf("_n->int_sz = %lu\n", _n->int_sz);
-    // printf("_n->int_sz/2 = %d\n", (int)(_n->int_sz/2.0));
 
     int sz2 = _n->int_sz / 2.0;
     int rem = _n->int_sz % 2;
     if (rem) sz2++;
-    /* printf("sz2=%d (rem=%d)\n", sz2, rem); */
     it = sz2 * 2 - 1;
 
-    while (1) {
-        // ln_show(&part_of_root, " (part_of_root)\n");
-
+    while (1) 
+    {
         va = ln_last_at(_n, it);
         vb = ln_last_at(_n, it - 1);
-        if (va < 0 && vb < 0) { break; } /* [todo] remove this break  */
+        if (va < 0 && vb < 0) { break; } /* TODO : remove this break  */
         if (va < 0) va = 0;
         if (vb < 0) vb = 0;
-        // printf("\t%d %d\n", va, vb);
 
-        // remainder * 100 + va * 10 + vb
+        #ifdef LN_LOGSQRT
+        ln_show(&part_of_root, " (part_of_root)\n");
+        printf("Remainder : '%d','%d'\n", va, vb);
+        #endif
+
         ln_append(&remainder, va);
         ln_append(&remainder, vb);
         ln_trim(&remainder);
         // ln_show(&remainder, " (remainder)\n");
 
+        /**
+         * TODO : https://github.com/tivins/lnprime/issues/1
+         * `c/(20·p)`
+         * Where c is `remainder`, p is `part_of_root`
+         */
         x = 1;
         while (1) {
             ln_clear(&tmp);
             x20ppx(&tmp, &part_of_root, x);
-            // ln_show(&tmp, " =x20ppx("); printf("%d)\n", x);
+            #ifdef LN_LOGSQRT
+            ln_show(&tmp, " =x20ppx("); printf("%d)\n", x);
+            #endif
             cmp = ln_cmp(&tmp, &remainder);
             if (cmp == ln_Greater) { x--; break; }
             if (cmp == ln_Equal) { break; }
             x++;
         }
-        ln_clear(&tmp);
-        x20ppx(&tmp, &part_of_root, x);
 
+        /* If the loop was stopped with ln_Greater, we need to compute
+           the result again. */ 
+        if (cmp != ln_Equal)
+        {
+            ln_clear(&tmp);
+            x20ppx(&tmp, &part_of_root, x);
+        }
 
-        // printf(" => Found x = %d\n", x);
+        /* Subtract y from c to form a new remainder. */
         ln_clear(&tmp2);
         ln_sub(&tmp2, &remainder, &tmp);
-
         ln_copy(&tmp2, &remainder);
-        //ln_show(&remainder, " (new remainder)\n");
+        #ifdef LN_LOGSQRT
+        ln_show(&remainder, " (new remainder)\n");
+        #endif
 
         ln_trim(&part_of_root);
         ln_append_int(&part_of_root, x);
-
-
-        // ln_clear(&tmp);
-        // x20ppx(&tmp, &part_of_root, 2);
-        // ln_show(&tmp, " x(20p+x) w/ x=2\n");
-        // ln_clear(&tmp);
-        // x20ppx(&tmp, &part_of_root, 3);
-        // ln_show(&tmp, " x(20p+x) w/ x=3\n");
-        // break;
 
         it-=2;
     }

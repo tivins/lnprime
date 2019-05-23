@@ -41,10 +41,14 @@ next_prime(&my_number, my_callback, NULL);
 
 ## Program structure
 
-* ln.h/ln.c is the large number library.
-* prime.h/prime.c use ln.h
-* main.c is the program used to compute number using the command line interpreter.
-* tests.c is the program to test the integrity of the calculations.
+* `ln.h`/`ln.c` is the "large number" library.
+* `prime.h`/`prime.c` are an extension of `ln.h` for prime numbers.
+
+**Executables sources:**
+
+* `minimal.c` is the basic program used to compute number using the command line interpreter, without any interaction.
+* `main.c` is the program used to compute number using the command line interpreter, with feedback from the process.
+* `tests.c` is the program used to test the validity of some processes.
 
 ## Compile
 
@@ -54,6 +58,3 @@ cd lnprime
 make
 ./minimal
 ```
-
-## libln API
-
