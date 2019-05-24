@@ -22,9 +22,11 @@ void display(ln_t * _num, int diff, ln_t * _rem);
 /**
  * TODO : use getopt().
  * TODO : provide small help (-h, --help)
+ * TODO : catch Ctrl+C signal
  */
 int main(int _argc, char** _argv)
 {
+    ln_env_init();
     if (_argc == 2) {
         find_biggest_prime(_argv[1]);
     }
@@ -33,6 +35,7 @@ int main(int _argc, char** _argv)
         int use_biggest = read_last(lastest);
         find_biggest_prime(use_biggest ? lastest : NULL);
     }
+    ln_env_free();
     return 0;
 }
 
@@ -193,5 +196,7 @@ void display(ln_t * _num, int diff, ln_t * _rem)
     display_time(diff, stdout);
     ln_show(_num, " ");
     if (_rem) ln_show(_rem, "% ");
+    printf("| %d allocs ", ln_get_nb_alloc());
+    ln_reset_alloc();
     fflush(stdout);
 }

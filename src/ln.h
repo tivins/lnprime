@@ -13,6 +13,11 @@ typedef struct _ln_t {
 
 enum { ln_Lesser = 1, ln_Equal = 2, ln_Greater = 4 };
 
+void ln_env_init();
+void ln_env_free();
+int  ln_get_nb_alloc();
+void ln_reset_alloc();
+
 void ln_init(ln_t * _n);
 void ln_clear(ln_t * _n);
 void ln_free(ln_t * _n);

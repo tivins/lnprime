@@ -17,6 +17,39 @@
 #include <stdio.h>
 #include <string.h>
 
+/* {static_env} */
+static size_t allocated;
+static int nb_allocated;
+static int g_allocated;
+static size_t deallocated;
+
+static ln_t tmp_int, tmp_swap;
+
+void ln_env_init() {
+    ln_init(&tmp_int);
+    ln_init(&tmp_swap);
+    allocated=0;
+    g_allocated=0;
+    nb_allocated=0;
+    deallocated=0;
+}
+void ln_env_free() {
+    ln_free(&tmp_int);
+    ln_free(&tmp_swap);
+    printf("allocated=%lu\n", allocated);
+    printf("nb_allocated=%d\n", nb_allocated);
+    printf("g_allocated=%d\n", g_allocated);
+    printf("deallocated=%lu\n", deallocated);
+}
+int ln_get_nb_alloc() {
+    return g_allocated;
+}
+void ln_reset_alloc() {
+    g_allocated = 0;
+}
+/* {/static_env} */
+
+
 void ln_init(ln_t * _n) {
     _n->int_cap = 0;
     _n->integer = NULL;
@@ -32,7 +65,7 @@ void ln_clear(ln_t * _n) {
 
 /* clear all data, included the allocation of memory. */
 void ln_free(ln_t * _n) {
-    if (_n->integer) free(_n->integer);
+    if (_n->integer) { free(_n->integer); nb_allocated--; }
     ln_init(_n);
 }
 
@@ -90,10 +123,13 @@ void ln_reserve(ln_t * _n, size_t _cap) {
     if (_n->integer == NULL) {
         _n->int_cap = _cap;
         _n->integer = malloc(sizeof(char) * _n->int_cap);
+        g_allocated++;
+        nb_allocated++;
     } else  {
         if (_n->int_cap >= _cap) return;
         _n->int_cap = _cap;
         _n->integer = realloc(_n->integer, sizeof(char) * _n->int_cap);
+        // printf("Alloc %lu\n", _n->int_cap);
     }
 }
 
@@ -199,40 +235,23 @@ void ln_show(ln_t * _n, const char * _sfx) {
 }
 
 void ln_inc(ln_t * _n) {
-    ln_t _1, cpy;
-
-    ln_init(&cpy);
-    ln_init(&_1);
-    ln_append(&_1, 1);
-
-    ln_copy(_n, &cpy);
+    ln_clear(&tmp_swap);
+    ln_copy(_n, &tmp_swap);
     ln_clear(_n);
-    ln_add(_n, &cpy, &_1);
-
-    ln_free(&cpy);
-
-    ln_free(&_1);
+    ln_add_int(_n, &tmp_swap, 1);
 }
 
 void ln_dec(ln_t * _n) {
-    ln_t _1, cpy;
-    ln_init(&cpy);
-    ln_copy(_n, &cpy);
-    ln_init(&_1);
-    ln_append(&_1, 1);
+    ln_clear(&tmp_swap);
+    ln_copy(_n, &tmp_swap);
     ln_clear(_n);
-    ln_sub(_n, &cpy, &_1);
-    ln_free(&_1);
-    ln_free(&cpy);
+    ln_sub_int(_n, &tmp_swap, 1);
 }
 
 void ln_add_int(ln_t * _out, ln_t * _a, int _b) {
-    ln_t nint;
-    ln_init(&nint);
-    ln_init(_out);
-    ln_append_int(&nint, _b);
-    ln_add(_out, _a, &nint);
-    ln_free(&nint);
+    ln_clear(&tmp_int);
+    ln_append_int(&tmp_int, _b);
+    ln_add(_out, _a, &tmp_int);
 }
 
 void ln_add(ln_t * _out, ln_t * _a, ln_t * _b) {
@@ -288,12 +307,9 @@ void ln_add(ln_t * _out, ln_t * _a, ln_t * _b) {
 }
 
 void ln_sub_int(ln_t * _out, ln_t * _a, int _b) {
-    ln_t nint;
-    ln_init(&nint);
-    ln_init(_out);
-    ln_append_int(&nint, _b);
-    ln_sub(_out, _a, &nint);
-    ln_free(&nint);
+    ln_clear(&tmp_int);
+    ln_append_int(&tmp_int, _b);
+    ln_sub(_out, _a, &tmp_int);
 }
 
 void ln_sub(ln_t * _out, ln_t * _a, ln_t * _b) {
@@ -361,20 +377,15 @@ void ln_sub(ln_t * _out, ln_t * _a, ln_t * _b) {
 
 void ln_mul_int(ln_t * _out, ln_t * _a, int _b)
 {
-    ln_t nint;
-    ln_init(&nint);
-    ln_append_int(&nint, _b);
-
-    ln_mul(_out, _a, &nint);
-    ln_free(&nint);
+    ln_clear(&tmp_int);
+    ln_append_int(&tmp_int, _b);
+    ln_mul(_out, _a, &tmp_int);
 }
 
 void ln_mul_str(ln_t * _out, ln_t * _a, const char * _str, size_t _len) {
-    ln_t nint;
-    ln_init(&nint);
-    ln_append_str(&nint, _str, _len);
-    ln_mul(_out, _a, &nint);
-    ln_free(&nint);
+    ln_clear(&tmp_swap);
+    ln_append_str(&tmp_swap, _str, _len);
+    ln_mul(_out, _a, &tmp_swap);
 }
 
 void ln_mul(ln_t * _out, ln_t * _a, ln_t * _b) {
@@ -553,7 +564,6 @@ void ln_div(ln_t * _q, ln_t * _n, ln_t * _d, ln_t * _r) {
         ln_mul(&tmp, &div, _d);
         ln_clear(&tmp2);
         ln_sub(&tmp2, &current, &tmp);
-        ln_free(&current);
         ln_copy(&tmp2, &current);
 
         #ifdef LN_LOGD2
@@ -564,7 +574,6 @@ void ln_div(ln_t * _q, ln_t * _n, ln_t * _d, ln_t * _r) {
     }
 
     if (_r) {
-        ln_free(_r);
         ln_copy(&current, _r);
         if (_r->int_sz == 0) { ln_append(_r, 0); }
     }
@@ -598,7 +607,6 @@ static void ln_c20p(ln_t * _out, ln_t * _c, ln_t * _p)
     ln_t tmp, tmp2 ;
 
     if (ln_is_zero(_p)) {
-        ln_free(_out);
         ln_copy(_p, _out);
         return;
     }
@@ -703,7 +711,6 @@ void ln_sqrt(ln_t * _out, ln_t * _n)
 
         ln_sub(&tmp2, &remainder, &tmp);
 
-        ln_free(&remainder);
         ln_copy(&tmp2, &remainder);
         #ifdef LN_LOGSQRT
         ln_show(&remainder, " (new remainder)\n");
