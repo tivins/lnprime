@@ -25,6 +25,7 @@ void ln_append_int(ln_t * _n, int _val);
 void ln_prepend(ln_t * _n, int _digit);
 void ln_negate(ln_t * _n);
 void ln_trim(ln_t * _n);
+int  ln_is_negative(ln_t * _n);
 int  ln_is_zero(ln_t * _n);
 int  ln_cmp(ln_t * _a, ln_t * b); /* ln_Lesser (a < b), ln_Equal (a = b), ln_Greater (a > b) */
 char ln_at(ln_t * _n, size_t _i);
@@ -33,7 +34,8 @@ void ln_set(ln_t * _n, size_t _i, int _digit);
 char * ln_c_str(ln_t * _n);
 void ln_inc(ln_t * _n);
 void ln_dec(ln_t * _n);
-void ln_add(ln_t * _out, ln_t * _a, ln_t * b);
+void ln_add(ln_t * _out, ln_t * _a, ln_t * _b);
+void ln_add_int(ln_t * _out, ln_t * _a, int _b);
 void ln_sub(ln_t * _out, ln_t * _a, ln_t * b);
 void ln_sub_int(ln_t * _out, ln_t * _a, int _b); /* _out = _a - _b */
 void ln_mul_int(ln_t * _out, ln_t * _a, int _b);

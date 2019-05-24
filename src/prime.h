@@ -3,7 +3,7 @@
 
 #include "ln.h"
 
-typedef void (*next_prime_cb)(ln_t *, void *);
+typedef void (*next_prime_cb)(ln_t *, ln_t *, void *);
 
 void next_prime(ln_t * _number, next_prime_cb _cb, void * _data);
 

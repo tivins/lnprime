@@ -53,6 +53,11 @@ void ln_negate(ln_t * _n) {
     _n->negative = !_n->negative;
 }
 
+int ln_is_negative(ln_t * _n) {
+    return _n->negative;
+}
+
+
 /* gets the size of the longest number. */
 size_t ln_max_sz(ln_t * _a, ln_t * _b) {
     return _a->int_sz > _b->int_sz ? _a->int_sz : _b->int_sz;
@@ -219,6 +224,15 @@ void ln_dec(ln_t * _n) {
     ln_sub(_n, &cpy, &_1);
     ln_free(&_1);
     ln_free(&cpy);
+}
+
+void ln_add_int(ln_t * _out, ln_t * _a, int _b) {
+    ln_t nint;
+    ln_init(&nint);
+    ln_init(_out);
+    ln_append_int(&nint, _b);
+    ln_add(_out, _a, &nint);
+    ln_free(&nint);
 }
 
 void ln_add(ln_t * _out, ln_t * _a, ln_t * _b) {

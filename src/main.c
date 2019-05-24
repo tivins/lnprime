@@ -17,7 +17,7 @@ int read_last(char * biggest);
 void save_in_file(ln_t * _n, long _dur);
 double get_tick();
 void display_time(int secs, FILE * fp);
-void display(ln_t * _num, int diff);
+void display(ln_t * _num, int diff, ln_t * _rem);
 
 /**
  * TODO : use getopt().
@@ -47,12 +47,12 @@ typedef struct _user_data_t {
 /**
  *
  */
-void callback(ln_t * _num, void * _data) {
+void callback(ln_t * _num, ln_t * _rem, void * _data) {
     user_data_t * udata = (user_data_t *) _data;
     int diff = (int)(get_tick() - udata->tick);
     if (udata->last != diff) {
         udata->last = diff;
-        display(_num, diff);
+        display(_num, diff, _rem);
     }
 }
 
@@ -74,7 +74,7 @@ void find_biggest_prime(const char * _init)
     next_prime(&prime, callback, &udata);
 
     diff = (int)(get_tick() - udata.tick);
-    display(&prime, diff);
+    display(&prime, diff, NULL);
     printf("\n");
 
     save_in_file(&prime, diff);
@@ -188,9 +188,10 @@ void display_time(int secs, FILE * fp) {
 /**
  *
  */
-void display(ln_t * _num, int diff)
+void display(ln_t * _num, int diff, ln_t * _rem)
 {
     display_time(diff, stdout);
     ln_show(_num, " ");
+    if (_rem) ln_show(_rem, "% ");
     fflush(stdout);
 }

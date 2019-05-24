@@ -1,5 +1,6 @@
 #include "prime.h"
 
+
 /**
  * Updates `_number` until it reach the next prime number.
  * `_number` could be any number, including a prime number.
@@ -21,27 +22,29 @@ void next_prime(ln_t * _number, next_prime_cb _cb, void * _data)
     ln_t div; /* a divisor */
     ln_t mod; /* the remainder of the division */
     ln_t sqroot; /* the sqrt of the number (optimization) */
+    int w = 2; /*  */
 
     /* Let start to init our numbers */
     ln_init(&div);
     ln_init(&mod);
     ln_init(&sqroot);
 
+
     /* Will we didn't reach our goal... */
     while (1)
     {
-        fail = 0;
-
         /*
          * We need to test the next number than the given (or the previous).
          */
         ln_inc(_number);
 
+        fail = 0;
+
         /*
          * Let start with 2 as divisor.
          */
         ln_clear(&div);
-        ln_append(&div, 2);
+        ln_append(&div, 5);
 
         /*
          * Optimization :
@@ -57,14 +60,33 @@ void next_prime(ln_t * _number, next_prime_cb _cb, void * _data)
          * While div is lower than the square root of A,
          * we will test for primality.
          */
-        while (ln_cmp(&div, &sqroot) == ln_Lesser)
+        while (1)
         {
+            ln_clear(&mod);
+            ln_sub(&mod, &sqroot, &div);
+
+            if (ln_is_negative(&mod)) {
+                break; //
+            }
+            // ln_cmp(&div, &sqroot) == ln_Lesser
+
             /*
              * Call the user defined function, if defined.
              */
             if (_cb)
             {
-        		_cb(_number, _data);
+                /* compute percent of progress */
+                ln_t perc, tmp3;
+                ln_init(&perc);
+                ln_init(&tmp3);
+                ln_mul_int(&tmp3, &mod, -100);
+                ln_div(&perc, &tmp3, &sqroot, NULL);
+                ln_clear(&tmp3);
+                ln_sub_int(&tmp3, &perc, 100);
+                ln_negate(&tmp3);
+
+        		_cb(_number, &tmp3, _data);
+                ln_free(&perc);
             }
 
             /*
@@ -86,7 +108,11 @@ void next_prime(ln_t * _number, next_prime_cb _cb, void * _data)
              * The division have no remained. we could
              * continue the tests, with the next divisor.
              */
-            ln_inc(&div);
+            ln_clear(&mod);
+            ln_copy(&div, &mod);
+            ln_clear(&div);
+            ln_add_int(&div, &mod, w);
+            w = 6 - w;
         }
         /*
          * The process tells that the number is a prime number.
