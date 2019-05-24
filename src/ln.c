@@ -36,27 +36,24 @@ void ln_free(ln_t * _n) {
     ln_init(_n);
 }
 
+void ln_copy(ln_t * _src, ln_t * _dst) {
+    ln_clear(_dst);
+    ln_reserve(_dst, _src->int_sz);
+    memcpy(_dst->integer, _src->integer, _src->int_sz);
+    _dst->int_sz = _src->int_sz;
+    _dst->negative = _src->negative;
+}
+
 void ln_negate_copy(ln_t * _src, ln_t * _dst) {
     ln_copy(_src, _dst);
     ln_negate(_dst);
-}
-
-void ln_copy(ln_t * _src, ln_t * _dst) {
-
-    if (_dst->integer == NULL) {
-        free(_dst->integer);
-    }
-    _dst->int_cap = _src->int_cap;
-    _dst->integer = malloc(sizeof(char) * _src->int_cap);
-    memcpy(_dst->integer, _src->integer, _src->int_cap);
-    _dst->int_sz = _src->int_sz;
-    _dst->negative = _src->negative;
 }
 
 void ln_negate(ln_t * _n) {
     _n->negative = !_n->negative;
 }
 
+/* gets the size of the longest number. */
 size_t ln_max_sz(ln_t * _a, ln_t * _b) {
     return _a->int_sz > _b->int_sz ? _a->int_sz : _b->int_sz;
 }
@@ -96,6 +93,7 @@ void ln_reserve(ln_t * _n, size_t _cap) {
 }
 
 void ln_append(ln_t * _n, int _digit) {
+    /* assert(_digit < 10) */
     ln_reserve(_n, _n->int_sz + 1);
     _n->integer[_n->int_sz] = _digit;
     _n->int_sz++;
@@ -121,7 +119,7 @@ void ln_append_str(ln_t * _n, const char * _str, size_t _l) {
 }
 
 void ln_append_int(ln_t * _n, int _val) {
-    static char intg[33];
+    static char intg[34];
     if (_val < 0) { _val = -_val; _n->negative = 1; }
     sprintf(intg, "%d", _val);
     ln_append_str(_n, intg, 0);
@@ -170,7 +168,7 @@ int ln_cmp(ln_t * _a, ln_t * _b) {
 void ln_dump(ln_t * _n)
 {
     size_t n;
-    printf("ln_dump:\n");
+    printf("ln_dump: (sz=%lu,cap=%lu)\n", _n->int_sz, _n->int_cap);
     for (n=0;n<_n->int_sz;n++) {
         printf(" %04d ", _n->integer[n]);
     }
@@ -285,21 +283,17 @@ void ln_sub_int(ln_t * _out, ln_t * _a, int _b) {
 }
 
 void ln_sub(ln_t * _out, ln_t * _a, ln_t * _b) {
-    ln_show(_a, " - "); ln_show(_b, "\n");
 
     int va, vb; /* numeric values for each char */
     int base, carry;
     size_t it;
     ln_t cpy;
 
-
     if (ln_is_zero(_a)) {
-        printf("0-b\n");
         ln_negate_copy(_b, _out);
         return;
     }
     if (ln_is_zero(_b)) {
-        printf("a-0\n");
         ln_copy(_a, _out);
         return;
     }
@@ -342,9 +336,6 @@ void ln_sub(ln_t * _out, ln_t * _a, ln_t * _b) {
         carry = 0;
 
         while (va < vb) { va += base; carry++; }
-        printf("Prepend '%d'\n", va - vb);
-        printf(" - %lu\n", _out->int_cap);
-        ln_show(_out, " (out)\n");
         ln_prepend(_out, va - vb);
         it++;
     }
@@ -612,8 +603,8 @@ static void ln_c20p(ln_t * _out, ln_t * _c, ln_t * _p)
 }
 
 
-void ln_sqrt(ln_t * _out, ln_t * _n) {
-
+void ln_sqrt(ln_t * _out, ln_t * _n) 
+{
     size_t it = 0;
     char va, vb;
     int x, cmp;
@@ -624,9 +615,9 @@ void ln_sqrt(ln_t * _out, ln_t * _n) {
     ln_t tmp;
     ln_t tmp2;
 
+    ln_init(&remainder);
     ln_init(&current);
     ln_init(&part_of_root);
-    ln_init(&remainder);
     ln_init(&tmp);
     ln_init(&tmp2);
 
@@ -696,9 +687,7 @@ void ln_sqrt(ln_t * _out, ln_t * _n) {
         /* Subtract y from c to form a new remainder. */
         ln_clear(&tmp2);
 
-        printf("Sqrt:sub\n");
         ln_sub(&tmp2, &remainder, &tmp);
-        printf("/Sqrt:sub\n\n");
 
         ln_free(&remainder);
         ln_copy(&tmp2, &remainder);
@@ -720,4 +709,5 @@ void ln_sqrt(ln_t * _out, ln_t * _n) {
     ln_free(&remainder);
     ln_free(&part_of_root);
     ln_free(&tmp);
+    ln_free(&tmp2);
 }

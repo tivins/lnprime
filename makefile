@@ -4,8 +4,10 @@ all: lnprime_debug lnprime_release minimal tests
 minimal: obj/ln_debug.o obj/prime_debug.o obj/minimal_debug.o
 	gcc -pg -O0 -Wall --pedantic -o $@ $^
 
-tests: obj/ln_debug.o obj/prime_debug.o obj/tests_debug.o
-	gcc -pg -O0 -Wall --pedantic -o $@ $^
+tests: obj/ln_debug.o obj/prime_debug.o obj/tests_debug.o obj/tests/test_ln_sqrt_debug.o obj/tests/test_ln_copy_debug.o
+	gcc -pg -O0 -Wall --pedantic -o tests obj/ln_debug.o obj/prime_debug.o obj/tests_debug.o
+	gcc -pg -O0 -Wall --pedantic -o test_ln_sqrt obj/ln_debug.o obj/tests/test_ln_sqrt_debug.o
+	gcc -pg -O0 -Wall --pedantic -o test_ln_copy obj/ln_debug.o obj/tests/test_ln_copy_debug.o
 
 lnprime_debug: obj/ln_debug.o obj/prime_debug.o obj/main_debug.o
 	gcc -pg -O0 -Wall --pedantic -o $@ $^
@@ -29,7 +31,4 @@ proper: clean
 	$(RM) lnprime_release lnprime_debug minimal tests
 
 check:
-	valgrind --leak-check=full --track-origins=yes --leak-check=yes ./lnprime_debug
-
-check_tests:
-	valgrind --leak-check=full --track-origins=yes --leak-check=yes ./tests
+	valgrind --leak-check=full --track-origins=yes --leak-check=yes $(PROG)
