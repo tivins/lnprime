@@ -603,7 +603,7 @@ static void ln_c20p(ln_t * _out, ln_t * _c, ln_t * _p)
 }
 
 
-void ln_sqrt(ln_t * _out, ln_t * _n) 
+void ln_sqrt(ln_t * _out, ln_t * _n)
 {
     size_t it = 0;
     char va, vb;
@@ -701,7 +701,6 @@ void ln_sqrt(ln_t * _out, ln_t * _n)
         it-=2;
     }
 
-    ln_free(_out);
     ln_copy(&part_of_root, _out);
 
     // Freeing resources :
