@@ -576,6 +576,30 @@ void x20ppx(ln_t * _out, ln_t * _p, int _x) {
     ln_free(&tmp);
 }
 
+/* computes c/(20·p) */
+static void ln_c20p(ln_t * _out, ln_t * _c, ln_t * _p)
+{
+    ln_t tmp, tmp2 ;
+
+    if (ln_is_zero(_p)) {
+        ln_copy(_p, _out);
+        return;
+    }
+    
+    ln_init(&tmp);
+    ln_init(&tmp2);
+
+    ln_mul_int(&tmp, _p, 2);
+    ln_append_str(&tmp, "0", 1);
+
+    ln_div(_out, _c, &tmp, NULL);
+
+    // ln_show(_p, " (_p) (c20p)\n");
+    // ln_show(&tmp, " (_20p) (c20p)\n");
+    // ln_show(&tmp2, " RES\n");
+}
+
+
 void ln_sqrt(ln_t * _out, ln_t * _n) {
 
     size_t it = 0;
@@ -627,6 +651,11 @@ void ln_sqrt(ln_t * _out, ln_t * _n) {
          * `c/(20·p)`
          * Where c is `remainder`, p is `part_of_root`
          */
+        // ln_t tmp3;
+        // ln_init(&tmp3);
+        // ln_c20p(&tmp3, &remainder, &part_of_root);
+        // ln_show(&tmp3, " (c20p)\n");
+
         x = 1;
         while (1) {
             ln_clear(&tmp);
@@ -639,6 +668,8 @@ void ln_sqrt(ln_t * _out, ln_t * _n) {
             if (cmp == ln_Equal) { break; }
             x++;
         }
+
+        // printf("X=%d\n----\n", x);
 
         /* If the loop was stopped with ln_Greater, we need to compute
            the result again. */ 
