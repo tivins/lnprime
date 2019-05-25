@@ -2,6 +2,7 @@
 #define LARGE_NUMBERS_INC_
 
 #include <stdlib.h>
+#include <stdio.h>
 
 typedef struct _ln_t {
     char * integer;
@@ -10,6 +11,8 @@ typedef struct _ln_t {
     size_t dec_sz, dec_cap; */
     char   negative;
 } ln_t;
+
+typedef void (*ln_progress_callback)(ln_t *, ln_t *, void *);
 
 enum { ln_Lesser = 1, ln_Equal = 2, ln_Greater = 4 };
 
@@ -53,7 +56,8 @@ void ln_mod(ln_t * _out, ln_t * _a, ln_t * b);
 void ln_sqrt(ln_t * _out, ln_t * _n);
 size_t ln_max_sz(ln_t * _a, ln_t * b);
 void ln_show(ln_t * _n, const char * _sfx);
+void ln_write(ln_t * _n, FILE * _fp);
 void ln_dump(ln_t * _n);
-void ln_pow(ln_t * _out, int _a, int _e);
+void ln_pow(ln_t * _out, int _a, int _e, ln_progress_callback _clbk);
 
 #endif

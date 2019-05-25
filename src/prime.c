@@ -86,6 +86,7 @@ void next_prime(ln_t * _number, next_prime_cb _cb, void * _data)
                 ln_negate(&tmp3);
         		_cb(_number, &tmp3, _data);
                 ln_free(&perc);
+                ln_free(&tmp3);
             }
 
             /*

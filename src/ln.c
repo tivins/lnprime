@@ -23,6 +23,12 @@ static struct {
     int nb_allocs;
 } g_ln_memory;
 size_t ln_mem_used() { return g_ln_memory.used_mem; }
+static void ln_increase_mem(size_t _v) {
+    g_ln_memory.used_mem += _v;
+    #ifdef LN_LOGMEM
+    printf("Mem: %s%lu = %lu\n", _v < 0 ? '-': '+', _v, g_ln_memory.used_mem);
+    #endif
+} 
 
 static size_t allocated;
 static int nb_allocated;
@@ -50,10 +56,11 @@ void ln_env_free() {
     ln_free(&tmp_int);
     ln_free(&tmp_swap);
     ln_free(&_add_cpy);
-    printf("allocated=%lu\n", allocated);
-    printf("nb_allocated=%d\n", nb_allocated);
-    printf("g_allocated=%d\n", g_allocated);
-    printf("deallocated=%lu\n", deallocated);
+    // printf("allocated=%lu\n", allocated);
+    // printf("nb_allocated=%d\n", nb_allocated);
+    // printf("g_allocated=%d\n", g_allocated);
+    // printf("deallocated=%lu\n", deallocated);
+    printf("=> Mem used : %lu\n", ln_mem_used());
 }
 int ln_get_nb_alloc() {
     return g_allocated;
@@ -82,7 +89,7 @@ void ln_free(ln_t * _n) {
     if (_n->integer) { 
         free(_n->integer); 
         nb_allocated--; 
-        g_ln_memory.used_mem -= _n->int_cap;
+        ln_increase_mem(-_n->int_cap);
     }
     ln_init(_n);
 }
@@ -141,13 +148,13 @@ void ln_reserve(ln_t * _n, size_t _cap) {
     if (_n->integer == NULL) {
         _n->int_cap = _cap;
         _n->integer = malloc(sizeof(char) * _n->int_cap);
-        g_ln_memory.used_mem += _n->int_cap;
+        ln_increase_mem(_n->int_cap);
         g_allocated++;
         nb_allocated++;
     } else  {
         if (_n->int_cap >= _cap) return;
 
-        g_ln_memory.used_mem += (_cap - _n->int_cap);
+        ln_increase_mem(_cap - _n->int_cap);
         _n->integer = realloc(_n->integer, sizeof(char) * _cap);
         _n->int_cap = _cap;
         // printf("Alloc %lu\n", _n->int_cap);
@@ -246,6 +253,14 @@ char * ln_c_str(ln_t * _n) {
     }
     out[it + _n->negative] = '\0';
     return out;
+}
+
+void ln_write(ln_t * _n, FILE * _fp) {
+    size_t it;
+    if (_n->negative) fputc('-', _fp);
+    for (it = 0; it < _n->int_sz; ++it) {
+        fputc(_n->integer[it] + '0', _fp);
+    }
 }
 
 void ln_show(ln_t * _n, const char * _sfx) {
@@ -750,8 +765,10 @@ void ln_sqrt(ln_t * _out, ln_t * _n)
     ln_free(&tmp2);
 }
 
-void ln_pow(ln_t * _out, int _a, int _e)
+void ln_pow(ln_t * _out, int _a, int _e, ln_progress_callback _clbk)
 {
+    ln_t prog;
+    ln_init(&prog);
     ln_clear(_out);
     ln_append_int(_out, 1);
     for (int i = 0; i < _e; i++)
@@ -759,5 +776,9 @@ void ln_pow(ln_t * _out, int _a, int _e)
         ln_clear(&tmp_int);
         ln_mul_int(&tmp_int, _out, _a);
         ln_copy(&tmp_int, _out);
+        ln_clear(&prog);
+        ln_append_int(&prog, (int)((i/(double)_e)*100));
+        if (_clbk) _clbk(_out, &prog, NULL);
     }
+    ln_free(&prog);
 }

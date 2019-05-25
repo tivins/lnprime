@@ -1,8 +1,8 @@
 #include "ln.h"
 #include "prime.h"
+#include "util.h"
 
 #include <time.h>     /* localtime */
-#include <sys/time.h> /* gettimeofday */
 #include <math.h>     /* round */
 #include <stdio.h>    /* files */
 #include <unistd.h>   /* gethostname */
@@ -15,7 +15,6 @@ int main(int _argc, char** _argv);
 void find_biggest_prime(const char * _init);
 int read_last(char * biggest);
 void save_in_file(ln_t * _n, long _dur);
-double get_tick();
 void display_time(int secs, FILE * fp);
 void display(ln_t * _num, int diff, ln_t * _rem);
 
@@ -164,15 +163,6 @@ void save_in_file(ln_t * _n, long _dur)
     free(num_str);
 }
 
-/**
- *
- */
-double get_tick()
-{
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return (double)(tv.tv_sec + tv.tv_usec * 0.000001);
-}
 
 /**
  *
