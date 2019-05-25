@@ -94,4 +94,4 @@ make
 
 ## Biggest primes
 
-Actually, the largest known prime number is : [2^82,589,933^-1](https://www.mersenne.org/primes/?press=M82589933) (24,862,048 digits). 
+Actually, the largest known prime number is : [2<sup>82,589,933</sup>-1](https://www.mersenne.org/primes/?press=M82589933) (24,862,048 digits). 
