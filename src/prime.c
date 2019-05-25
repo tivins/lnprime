@@ -76,16 +76,16 @@ void next_prime(ln_t * _number, next_prime_cb _cb, void * _data)
             if (_cb)
             {
                 /* compute percent of progress */
-                // ln_t perc, tmp3;
-                // ln_init(&perc);
-                // ln_init(&tmp3);
-                // ln_mul_int(&tmp3, &mod, -100);
-                // ln_div(&perc, &tmp3, &sqroot, NULL);
-                // ln_clear(&tmp3);
-                // ln_sub_int(&tmp3, &perc, 100);
-                // ln_negate(&tmp3);
-        		_cb(_number, NULL, _data);
-                // ln_free(&perc);
+                ln_t perc, tmp3;
+                ln_init(&perc);
+                ln_init(&tmp3);
+                ln_mul_int(&tmp3, &mod, -100);
+                ln_div(&perc, &tmp3, &sqroot, NULL);
+                ln_clear(&tmp3);
+                ln_sub_int(&tmp3, &perc, 100);
+                ln_negate(&tmp3);
+        		_cb(_number, &tmp3, _data);
+                ln_free(&perc);
             }
 
             /*

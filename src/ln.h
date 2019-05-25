@@ -18,6 +18,8 @@ void ln_env_free();
 int  ln_get_nb_alloc();
 void ln_reset_alloc();
 
+size_t ln_mem_used();
+
 void ln_init(ln_t * _n);
 void ln_clear(ln_t * _n);
 void ln_free(ln_t * _n);
@@ -28,8 +30,8 @@ void ln_append(ln_t * _n, int _digit);
 void ln_append_str(ln_t * _n, const char * _str, size_t _l);
 void ln_append_int(ln_t * _n, int _val);
 void ln_prepend(ln_t * _n, int _digit);
-void ln_negate(ln_t * _n);
-void ln_trim(ln_t * _n);
+void ln_negate(ln_t * _n); /* invert _n */
+void ln_trim(ln_t * _n); /* remove leading zeros */
 int  ln_is_negative(ln_t * _n);
 int  ln_is_zero(ln_t * _n);
 int  ln_cmp(ln_t * _a, ln_t * b); /* ln_Lesser (a < b), ln_Equal (a = b), ln_Greater (a > b) */
@@ -52,5 +54,6 @@ void ln_sqrt(ln_t * _out, ln_t * _n);
 size_t ln_max_sz(ln_t * _a, ln_t * b);
 void ln_show(ln_t * _n, const char * _sfx);
 void ln_dump(ln_t * _n);
+void ln_pow(ln_t * _out, int _a, int _e);
 
 #endif

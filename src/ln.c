@@ -18,24 +18,38 @@
 #include <string.h>
 
 /* {static_env} */
+static struct {
+    size_t used_mem;
+    int nb_allocs;
+} g_ln_memory;
+size_t ln_mem_used() { return g_ln_memory.used_mem; }
+
 static size_t allocated;
 static int nb_allocated;
 static int g_allocated;
 static size_t deallocated;
 
 static ln_t tmp_int, tmp_swap;
+static ln_t _add_cpy;
 
-void ln_env_init() {
-    ln_init(&tmp_int);
-    ln_init(&tmp_swap);
+void ln_env_init() 
+{
+    g_ln_memory.used_mem = 0;
+    g_ln_memory.nb_allocs = 0;
+
     allocated=0;
     g_allocated=0;
     nb_allocated=0;
     deallocated=0;
+
+    ln_init(&tmp_int);
+    ln_init(&tmp_swap);
+    ln_init(&_add_cpy);
 }
 void ln_env_free() {
     ln_free(&tmp_int);
     ln_free(&tmp_swap);
+    ln_free(&_add_cpy);
     printf("allocated=%lu\n", allocated);
     printf("nb_allocated=%d\n", nb_allocated);
     printf("g_allocated=%d\n", g_allocated);
@@ -65,7 +79,11 @@ void ln_clear(ln_t * _n) {
 
 /* clear all data, included the allocation of memory. */
 void ln_free(ln_t * _n) {
-    if (_n->integer) { free(_n->integer); nb_allocated--; }
+    if (_n->integer) { 
+        free(_n->integer); 
+        nb_allocated--; 
+        g_ln_memory.used_mem -= _n->int_cap;
+    }
     ln_init(_n);
 }
 
@@ -123,12 +141,15 @@ void ln_reserve(ln_t * _n, size_t _cap) {
     if (_n->integer == NULL) {
         _n->int_cap = _cap;
         _n->integer = malloc(sizeof(char) * _n->int_cap);
+        g_ln_memory.used_mem += _n->int_cap;
         g_allocated++;
         nb_allocated++;
     } else  {
         if (_n->int_cap >= _cap) return;
+
+        g_ln_memory.used_mem += (_cap - _n->int_cap);
+        _n->integer = realloc(_n->integer, sizeof(char) * _cap);
         _n->int_cap = _cap;
-        _n->integer = realloc(_n->integer, sizeof(char) * _n->int_cap);
         // printf("Alloc %lu\n", _n->int_cap);
     }
 }
@@ -258,18 +279,15 @@ void ln_add(ln_t * _out, ln_t * _a, ln_t * _b) {
     int va, vb, vt; /* numeric values for each char */
     int base, carry;
     size_t it;
-    ln_t cpy;
     if (_a->negative && !_b->negative) {
-        ln_negate_copy(_a, &cpy);
-        ln_sub(_out, &cpy, _b);
+        ln_negate_copy(_a, &_add_cpy);
+        ln_sub(_out, &_add_cpy, _b);
         ln_negate(_out);
-        ln_free(&cpy);
         return;
     }
     if (!_a->negative && _b->negative) {
-        ln_negate_copy(_b, &cpy);
-        ln_sub(_out, _a, &cpy);
-        ln_free(&cpy);
+        ln_negate_copy(_b, &_add_cpy);
+        ln_sub(_out, _a, &_add_cpy);
         return;
     }
     it = 0;
@@ -377,9 +395,9 @@ void ln_sub(ln_t * _out, ln_t * _a, ln_t * _b) {
 
 void ln_mul_int(ln_t * _out, ln_t * _a, int _b)
 {
-    ln_clear(&tmp_int);
-    ln_append_int(&tmp_int, _b);
-    ln_mul(_out, _a, &tmp_int);
+    ln_clear(&tmp_swap);
+    ln_append_int(&tmp_swap, _b);
+    ln_mul(_out, _a, &tmp_swap);
 }
 
 void ln_mul_str(ln_t * _out, ln_t * _a, const char * _str, size_t _len) {
@@ -589,7 +607,7 @@ void ln_mod(ln_t * _out, ln_t * _a, ln_t * _b) {
 }
 
 /* x(20p+x) */
-void x20ppx(ln_t * _out, ln_t * _p, int _x)
+static void x20ppx(ln_t * _out, ln_t * _p, int _x)
 {
     ln_t tmp;
     ln_init(&tmp);
@@ -730,4 +748,16 @@ void ln_sqrt(ln_t * _out, ln_t * _n)
     ln_free(&part_of_root);
     ln_free(&tmp);
     ln_free(&tmp2);
+}
+
+void ln_pow(ln_t * _out, int _a, int _e)
+{
+    ln_clear(_out);
+    ln_append_int(_out, 1);
+    for (int i = 0; i < _e; i++)
+    {
+        ln_clear(&tmp_int);
+        ln_mul_int(&tmp_int, _out, _a);
+        ln_copy(&tmp_int, _out);
+    }
 }

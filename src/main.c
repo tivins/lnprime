@@ -195,8 +195,8 @@ void display(ln_t * _num, int diff, ln_t * _rem)
 {
     display_time(diff, stdout);
     ln_show(_num, " ");
-    if (_rem) ln_show(_rem, "% ");
-    printf("| %d allocs ", ln_get_nb_alloc());
+    if (_rem) ln_show(_rem, " ");
+    printf("| %lu Mem ", ln_mem_used());
     ln_reset_alloc();
     fflush(stdout);
 }
