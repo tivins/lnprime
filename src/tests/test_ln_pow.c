@@ -1,12 +1,17 @@
 #include "../ln.h"
 #include "../util.h"
 #include <stdio.h>
+#include <time.h>
 
 double tick;
+double last_tick = 0;
 
 void cb(ln_t * _n, ln_t * _t, void * data)
 {
-    double duration = get_tick() - tick;
+    double cur = get_tick();
+    if (cur - last_tick < 1) return;
+    double duration = cur - tick;
+    last_tick = cur;
     printf("\r %lu - ", _n->int_sz);
     ln_show(_t, "% ");
     printf("- %ds ", (int)duration);
@@ -31,8 +36,10 @@ int main(int argc, char ** argv)
 
     ln_env_init();
     ln_init(&out);
+    ln_reserve(&out, 380000);
 
     tick = get_tick();
+    last_tick = tick;
     ln_pow(&out, 2, val, cb);
     duration = get_tick() - tick;
 
