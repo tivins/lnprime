@@ -59,5 +59,6 @@ void ln_show(ln_t * _n, const char * _sfx);
 void ln_write(ln_t * _n, FILE * _fp);
 void ln_dump(ln_t * _n);
 void ln_pow(ln_t * _out, int _a, int _e, ln_progress_callback _clbk);
+int  ln_is_perfect(ln_t * _n);
 
 #endif

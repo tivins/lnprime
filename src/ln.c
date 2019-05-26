@@ -782,3 +782,19 @@ void ln_pow(ln_t * _out, int _a, int _e, ln_progress_callback _clbk)
     }
     ln_free(&prog);
 }
+
+int ln_is_perfect(ln_t * _number) 
+{
+    /*
+    ln_t mod;
+    ln_t div;
+
+    ln_clear(&div);
+    ln_append(&div, 5);
+    ln_mod(&mod, _number, &div);
+    
+    ln_free(&mod);
+    ln_free(&div);
+    */
+    return 0;
+}
