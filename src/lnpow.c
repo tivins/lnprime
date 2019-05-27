@@ -2,7 +2,8 @@
 #include "lib/util.h"
 #include <stdio.h>
 #include <time.h>
-#include <sys/stat.h> /* mkdir */
+#include <sys/stat.h> /* mkdir() */
+#include <unistd.h> /* gethostname() */
 
 double tick;
 double last_tick = 0;
@@ -27,6 +28,7 @@ int main(int argc, char ** argv)
     double duration;
     time_t rawtime;
     char filename[255];
+    char hostname[256] = {0};
 
 
     if (argc == 2) {
@@ -44,6 +46,14 @@ int main(int argc, char ** argv)
     ln_pow(&out, 2, val, cb);
     duration = get_tick() - tick;
 
+
+
+    if (gethostname(hostname, 256) != 0)
+    {
+        perror("cannot get hostname");
+        sprintf(hostname, "%s", "unknown");
+    }
+
     time(&rawtime);
 
     if (! dir_exists("run")) {
@@ -56,7 +66,7 @@ int main(int argc, char ** argv)
     sprintf(filename, "run/pow2_%d.txt", val);
     fp = fopen(filename, "w+");
     if (fp) {
-        fprintf(fp, "%d\t%ld\t%d\n", val, rawtime, (int)duration);
+        fprintf(fp, "%d\t%ld\t%d\t%s\n", val, rawtime, (int)duration, hostname);
         fclose(fp);
     }
 
@@ -70,7 +80,7 @@ int main(int argc, char ** argv)
     sprintf(filename, "run/pow2_history.txt");
     fp = fopen(filename, "a");
     if (fp) {
-        fprintf(fp, "%d\t%ld\t%d\n", val, rawtime, (int)duration);
+        fprintf(fp, "%d\t%ld\t%d\t%s\n", val, rawtime, (int)duration, hostname);
         fclose(fp);
     }
 
