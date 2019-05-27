@@ -1,4 +1,4 @@
-#include "../ln.h"
+#include "../lib/ln.h"
 
 int main()
 {

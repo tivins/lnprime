@@ -53,5 +53,8 @@ dkms.conf
 
 # project
 run/
+minimal
 lnprime_debug
-lnprime_release
+lnprime
+lnpow
+lnpow_debug

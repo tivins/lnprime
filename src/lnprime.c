@@ -1,6 +1,6 @@
-#include "ln.h"
-#include "prime.h"
-#include "util.h"
+#include "lib/ln.h"
+#include "lib/prime.h"
+#include "lib/util.h"
 
 #include <time.h>     /* localtime */
 #include <math.h>     /* round */
