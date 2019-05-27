@@ -768,19 +768,28 @@ void ln_sqrt(ln_t * _out, ln_t * _n)
 void ln_pow(ln_t * _out, int _a, int _e, ln_progress_callback _clbk)
 {
     ln_t prog;
+    ln_t na;
+    
     ln_init(&prog);
+    ln_init(&na);
+
+    ln_append_int(&na, _a);
+
     ln_clear(_out);
     ln_append_int(_out, 1);
     for (int i = 0; i < _e; i++)
     {
         ln_clear(&tmp_int);
-        ln_mul_int(&tmp_int, _out, _a);
+        ln_mul(&tmp_int, _out, &na);
         ln_copy(&tmp_int, _out);
+
         ln_clear(&prog);
         ln_append_int(&prog, (int)((i/(double)_e)*100));
         if (_clbk) _clbk(_out, &prog, NULL);
     }
+    
     ln_free(&prog);
+    ln_free(&na);
 }
 
 int ln_is_perfect(ln_t * _number) 
