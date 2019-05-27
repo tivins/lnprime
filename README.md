@@ -73,9 +73,13 @@ next_prime(&my_number, my_callback, NULL);
 
 ## Compile
 
+This project use libln.
+
 ```
 git clone git@github.com:tivins/lnprime.git
-cd lnprime
+cd lnprime/src
+git clone git@githumb.com:tivins/libln.git
+cd ..
 make
 ```
 
@@ -100,3 +104,4 @@ Actually, the largest known prime number is : [2<sup>82,589,933</sup>-1](https:/
 ## Notes for later...
 
 * Miller-Rabin's probabilistic test
+* AKS deterministic primality-proving test

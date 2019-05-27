@@ -53,6 +53,7 @@ dkms.conf
 
 # project
 run/
+src/libln
 minimal
 lnprime_debug
 lnprime

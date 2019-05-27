@@ -1,4 +1,4 @@
-#include "lib/prime.h"
+#include <prime.h>
 int main()
 {
     ln_t prime;
