@@ -73,7 +73,7 @@ next_prime(&my_number, my_callback, NULL);
 
 ## Compile
 
-This project use libln.
+This project use [libln](https://github.com/tivins/libln).
 
 ```
 git clone git@github.com:tivins/lnprime.git
