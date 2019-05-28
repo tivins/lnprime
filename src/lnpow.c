@@ -3,21 +3,21 @@
 #include "lib/util.h"
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 #include <sys/stat.h> /* mkdir() */
 #include <unistd.h> /* gethostname() */
 
-double tick;
-double last_tick = 0;
+time_t last_tick;
+time_t tick;
 
-void cb(ln_t * _n, ln_t * _t, void * data)
+void cb(ln_t * _n, float _p, void * data)
 {
-    double cur = get_tick();
-    if (cur - last_tick < 1) return;
-    double duration = cur - tick;
-    last_tick = cur;
-    printf("\r %lu - ", _n->int_sz);
-    ln_show(_t, "% ");
-    printf("- %ds ", (int)duration);
+    time(&tick);
+    if (tick - last_tick < 1) return;
+    long int duration = last_tick - tick;
+    last_tick = tick;
+
+    printf("\r %lu - %.2f%% - %lds", _n->int_sz, _p, duration);
     fflush(stdout);
 }
 
@@ -26,26 +26,39 @@ int main(int argc, char ** argv)
     FILE * fp;
     ln_t out;
     int val = 2048;
-    double duration;
+    int duration;
     time_t rawtime;
     char filename[255];
     char hostname[256] = {0};
 
 
-    if (argc == 2) {
+    /* ultra-basic version provider */
+    if (argc == 2 && strcmp(argv[1], "--version") == 0)
+    {
+        printf("%s\n", LIBLN_VERSION);
+        return 0;
+    }
+
+    /* gets the value from the program arguments */
+    if (argc >= 2)
+    {
         val = atoi(argv[1]);
     }
+
     printf("2^%d\n", val);
-
-
 
     ln_env_init();
     ln_init(&out);
 
-    tick = get_tick();
-    last_tick = tick;
+    ln_reserve(&out, 909526);
+
+    time(&last_tick);
+
     ln_pow(&out, 2, val, cb);
-    duration = get_tick() - tick;
+
+    time(&tick);
+    duration = tick - last_tick;
+    time(&rawtime);
 
 
 
@@ -55,7 +68,6 @@ int main(int argc, char ** argv)
         sprintf(hostname, "%s", "unknown");
     }
 
-    time(&rawtime);
 
     if (! dir_exists("run")) {
         if (mkdir("run", 0755) != 0) {
@@ -67,7 +79,7 @@ int main(int argc, char ** argv)
     sprintf(filename, "run/pow2_%d.txt", val);
     fp = fopen(filename, "w+");
     if (fp) {
-        fprintf(fp, "%d\t%ld\t%d\t%s\n", val, rawtime, (int)duration, hostname);
+        fprintf(fp, "%d\t%ld\t%d\t%s\n", val, rawtime, duration, hostname);
         fclose(fp);
     }
 
@@ -81,7 +93,7 @@ int main(int argc, char ** argv)
     sprintf(filename, "run/pow2_history.txt");
     fp = fopen(filename, "a");
     if (fp) {
-        fprintf(fp, "%d\t%ld\t%d\t%s\n", val, rawtime, (int)duration, hostname);
+        fprintf(fp, "%d\t%ld\t%d\t%s\n", val, rawtime, duration, hostname);
         fclose(fp);
     }
 

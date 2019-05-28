@@ -19,20 +19,20 @@ tests: $(base_objs)  $(tests_objs)
 	gcc -pg -O0 -Wall --pedantic -o test_ln_pow $(base_objs) obj/$(libln_dir)/tests/test_ln_pow_debug.o
 
 lnprime_debug: $(base_objs) obj/lnprime_debug.o
-	gcc -pg -O0 -Wall --pedantic -o $@ $^
+	gcc -pg -O0 -Wall --pedantic -D'LNMODE="d"' -o $@ $^
 
 lnprime: $(base_objs_release) obj/lnprime_release.o
 	gcc -O3 -o $@ $^
 
 lnpow_debug: $(base_objs) obj/lnpow_debug.o
-	gcc -pg -O0 -Wall --pedantic -o $@ $^
+	gcc -pg -O0 -Wall --pedantic -D'LNMODE="d"' -o $@ $^
 
 lnpow: $(base_objs_release) obj/lnpow_release.o
 	gcc -O3 -o $@ $^
 
 obj/%_debug.o: src/%.c
 	dirname $@ | xargs mkdir -p
-	gcc $(libdir) -pg -O0 -Wall --pedantic -c $^ -o $@
+	gcc $(libdir) -pg -O0 -Wall --pedantic -D'LNMODE="d"' -c $^ -o $@
 
 obj/%_release.o: src/%.c
 	dirname $@ | xargs mkdir -p
