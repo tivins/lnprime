@@ -4,7 +4,8 @@ base_objs=obj/$(libln_dir)/src/ln_debug.o obj/$(libln_dir)/src/prime_debug.o obj
 base_objs_release=obj/$(libln_dir)/src/ln_release.o obj/$(libln_dir)/src/prime_release.o obj/lib/util_release.o
 tests_objs=obj/$(libln_dir)/tests/test_ln_sqrt_debug.o \
 	obj/$(libln_dir)/tests/test_ln_copy_debug.o \
-	obj/$(libln_dir)/tests/test_ln_pow_debug.o
+	obj/$(libln_dir)/tests/test_ln_pow_debug.o \
+	obj/$(libln_dir)/tests/test_ln_start_from.o
 libdir=-Isrc/$(libln_dir)/src
 
 
@@ -14,9 +15,10 @@ minimal: $(base_objs) obj/minimal_debug.o
 	gcc -pg -O0 -Wall --pedantic -o $@ $^
 
 tests: $(base_objs)  $(tests_objs)
-	gcc -pg -O0 -Wall --pedantic -o test_ln_sqrt $(base_objs) obj/$(libln_dir)/tests/test_ln_sqrt_debug.o
-	gcc -pg -O0 -Wall --pedantic -o test_ln_copy $(base_objs) obj/$(libln_dir)/tests/test_ln_copy_debug.o
-	gcc -pg -O0 -Wall --pedantic -o test_ln_pow $(base_objs) obj/$(libln_dir)/tests/test_ln_pow_debug.o
+	gcc -pg -O0 -Wall --pedantic -o test_ln_sqrt       $(base_objs) obj/$(libln_dir)/tests/test_ln_sqrt_debug.o
+	gcc -pg -O0 -Wall --pedantic -o test_ln_copy       $(base_objs) obj/$(libln_dir)/tests/test_ln_copy_debug.o
+	gcc -pg -O0 -Wall --pedantic -o test_ln_pow        $(base_objs) obj/$(libln_dir)/tests/test_ln_pow_debug.o
+	gcc -pg -O0 -Wall --pedantic -o test_ln_start_from $(base_objs) obj/$(libln_dir)/tests/test_ln_start_from_debug.o
 
 lnprime_debug: $(base_objs) obj/lnprime_debug.o
 	gcc -pg -O0 -Wall --pedantic -D'LNMODE="d"' -o $@ $^
@@ -43,7 +45,7 @@ clean:
 	$(RM) gmon.out
 
 proper: clean
-	$(RM) lnprime_release lnprime_debug minimal test_ln_sqrt test_ln_copy test_ln_pow
+	$(RM) lnprime_release lnprime_debug minimal test_ln_sqrt test_ln_copy test_ln_pow test_ln_start_from
 
 check:
 	valgrind --leak-check=full --track-origins=yes --leak-check=yes $(PROG)
