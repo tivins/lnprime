@@ -78,7 +78,7 @@ This project use [libln](https://github.com/tivins/libln).
 ```
 git clone git@github.com:tivins/lnprime.git
 cd lnprime/src
-git clone git@githumb.com:tivins/libln.git
+git clone git@github.com:tivins/libln.git
 cd ..
 make
 ```
