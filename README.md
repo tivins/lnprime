@@ -80,7 +80,9 @@ git clone git@github.com:tivins/lnprime.git
 cd lnprime/src
 git clone git@github.com:tivins/libln.git
 cd ..
+mkdir run
 make
+./lnprime
 ```
 
 ## Program structure
